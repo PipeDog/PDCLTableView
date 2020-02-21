@@ -70,62 +70,48 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
                                     CGRectGetHeight(self.bounds));
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
-        CGRect headerRectInContainer = [self rectForHeaderInContainerAtSection:section];
+        CGRect headerRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
         if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(self.frame)) { break; }
         
-        CGRect lastHeaderRectInContainer = [self rectForHeaderInContainerAtSection:section];
+        CGRect lastHeaderRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
         if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(lastHeaderRectInContainer)) { break; }
         
         if (CGRectIntersectsRect(visibleRect, [self rectForSection:section])) {
-            [self updateHeaderRectInSection:section];
+            [self reloadHeaderInSectin:section];
         }
     }
 }
 
-- (void)updateHeaderRectInSection:(NSInteger)section {
+- (void)reloadHeaderInSectin:(NSInteger)section {
     NSInteger lastSection = section - 1;
     UIView *lastHeader = [self.headers objectOrNilAtIndex:lastSection];
     
     CGRect lastHeaderRectInContainer = CGRectMake(self.contentInset.left, 0.f, self.tableWidth, [self rectForHeaderInSection:section].size.height);//[self rectForHeaderInContainerAtSection:lastSection];
-
+    CGRect currentHeaderRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
+    
     if (lastHeader) {
-        CGRect currentHeaderRectInContainer = [self rectForHeaderInContainerAtSection:section];
-
         if (CGRectIntersectsRect(currentHeaderRectInContainer, lastHeaderRectInContainer)) {
-            // 与上一个 header 相交，更新上一个 header 的 frame
             CGRect lastHeaderRealRectInContainer = lastHeader.frame;
             lastHeaderRealRectInContainer.origin.y = -(CGRectGetHeight(lastHeader.frame) - CGRectGetMinY(currentHeaderRectInContainer));
             lastHeader.frame = lastHeaderRealRectInContainer;
         } else {
             // Do nothing...
         }
-        
-        if (CGRectGetMinY(currentHeaderRectInContainer) <= 0.f) {
-            // 触及到 scrollView 的 top，添加到 container 上，进行悬停操作
-            [self addHeaderToContainerForSection:section];
-        } else {
-            // 添加到 scrollView 上，取消悬停操作
-            [self addHeaderToSelfForSection:section];
-        }
+    }
+    
+    if (CGRectGetMinY(currentHeaderRectInContainer) <= 0.f) {
+        [self addHeaderToSuperviewForSection:section];
     } else {
-        CGRect currentHeaderRectInContainer = [self rectForHeaderInContainerAtSection:section];
-
-        if (CGRectGetMinY(currentHeaderRectInContainer) <= 0.f) {
-            // 触及到 scrollView 的 top，添加到 container 上，进行悬停操作
-            [self addHeaderToContainerForSection:section];
-        } else {
-            // 添加到 scrollView 上，取消悬停操作
-            [self addHeaderToSelfForSection:section];
-        }
+        [self addHeaderToSelfForSection:section];
     }
 }
 
-- (void)addHeaderToContainerForSection:(NSInteger)section {
+- (void)addHeaderToSuperviewForSection:(NSInteger)section {
     PDCLTableViewHeaderFooterView *header = [self.headers objectOrNilAtIndex:section];
     
     if (header.superview != self.superview) {
         CGRect rect = [self rectForHeaderInSection:section];
-        rect.origin.y = CGRectGetMinY(self.frame);//0.f;
+        rect.origin.y = CGRectGetMinY(self.frame);
         header.frame = rect;
         [self.superview addSubview:header];
     }
@@ -141,8 +127,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     }
 }
 
-
-- (CGRect)rectForHeaderInContainerAtSection:(NSInteger)section {
+- (CGRect)rectForHeaderInSectionBaseOnSuperview:(NSInteger)section {
     if (section < 0) { return CGRectNull; }
 
     CGRect rect = [[self.headerFrames objectOrNilAtIndex:section] CGRectValue];
