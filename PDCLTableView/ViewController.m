@@ -55,18 +55,14 @@ static inline UIColor *UIColorRandom(void) {
 
 - (NSInteger)tableView:(PDCLTableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return 5;
-//    return rand() % 10;
 }
 
 - (CGFloat)tableView:(PDCLTableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-//    return 80.f;
     return rand() % 80;
 }
 
 - (CGFloat)tableView:(PDCLTableView *)tableView heightForHeaderInSection:(NSInteger)section {
     return 80.f;
-//    return (section == 0 ? 80.f : 70.f);
-//    return arc4random() % 100;
 }
 
 - (PDCLTableViewHeaderFooterView *)tableView:(PDCLTableView *)tableView viewForHeaderInSection:(NSInteger)section {
