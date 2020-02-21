@@ -32,6 +32,18 @@ static inline UIColor *UIColorRandom(void) {
     // Do any additional setup after loading the view.
     
     [self.view addSubview:self.tableView];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self reload];
+    });
+}
+
+- (void)reload {
+    [self.tableView reloadFrame];
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self reload];
+    });
 }
 
 #pragma mark - PDCLTableViewDelegate && PDCLTableViewDataSource
@@ -41,14 +53,18 @@ static inline UIColor *UIColorRandom(void) {
 
 - (NSInteger)tableView:(PDCLTableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return 5;
+//    return rand() % 10;
 }
 
 - (CGFloat)tableView:(PDCLTableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 80.f;
+//    return 80.f;
+    return rand() % 80;
 }
 
 - (CGFloat)tableView:(PDCLTableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return (section == 0 ? 80.f : 70.f);
+    return 80.f;
+//    return (section == 0 ? 80.f : 70.f);
+//    return arc4random() % 100;
 }
 
 - (PDCLTableViewHeaderFooterView *)tableView:(PDCLTableView *)tableView viewForHeaderInSection:(NSInteger)section {

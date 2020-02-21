@@ -204,6 +204,9 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (void)reloadFrame {
+    if (!_headers.count) { return; }
+    if (!_cells.count) { return; }
+    
     // Remove origin frames
     [_headerFrames removeAllObjects];
     [_cellFrames removeAllObjects];
@@ -231,7 +234,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
         [self.headerFrames addObject:[NSValue valueWithCGRect:headerFrame]];
         
         // Add cells for section
-        NSMutableArray<PDCLTableViewCell *> *cellsInSection = [NSMutableArray array];
+        NSMutableArray<PDCLTableViewCell *> *cellsInSection = self.cells[section];
         NSMutableArray<NSValue *> *cellFramesInSection = [NSMutableArray array];
         
         NSInteger numberOfRows = [self.dataSource tableView:self numberOfRowsInSection:section];
