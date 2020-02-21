@@ -20,3 +20,14 @@
 }
 
 @end
+
+@implementation NSArray (PDAdd)
+
+- (id)objectOrNilAtIndex:(NSInteger)index {
+    if (index < 0 || index >= self.count) {
+        return nil;
+    }
+    return [self objectAtIndex:index];
+}
+
+@end

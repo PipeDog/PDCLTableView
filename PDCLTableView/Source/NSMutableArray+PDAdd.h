@@ -16,4 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface NSArray (PDAdd)
+
+- (nullable id)objectOrNilAtIndex:(NSInteger)index;
+
+@end
+
 NS_ASSUME_NONNULL_END

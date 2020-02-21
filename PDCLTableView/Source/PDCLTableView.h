@@ -18,18 +18,16 @@ typedef UIView PDCLTableViewHeaderFooterView;
 @protocol PDCLTableViewDelegate <UIScrollViewDelegate>
 
 - (CGFloat)tableView:(PDCLTableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
-
-@optional
 - (CGFloat)tableView:(PDCLTableView *)tableView heightForHeaderInSection:(NSInteger)section;
 
 @end
 
 @protocol PDCLTableViewDataSource <NSObject>
 
-- (NSInteger)tableView:(PDCLTableView *)tableView numberOfRowsInSection:(NSInteger)section;
-- (__kindof PDCLTableViewCell *)tableView:(PDCLTableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UIView *)ceilingHeaderContainerForTableView:(PDCLTableView *)tableView;
 
-@optional
+- (NSInteger)tableView:(PDCLTableView *)tableView numberOfRowsInSection:(NSInteger)section;
+- (PDCLTableViewCell *)tableView:(PDCLTableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSInteger)numberOfSectionsInTableView:(PDCLTableView *)tableView;
 - (PDCLTableViewHeaderFooterView *)tableView:(PDCLTableView *)tableView viewForHeaderInSection:(NSInteger)section;
 
@@ -40,13 +38,11 @@ typedef UIView PDCLTableViewHeaderFooterView;
 @property (nonatomic, weak, nullable) id<PDCLTableViewDelegate> delegate;
 @property (nonatomic, weak, nullable) id<PDCLTableViewDataSource> dataSource;
 
-// Remove cells and headers, then readd them.
-- (void)reloadData;
-- (void)reloadRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)reloadData; // Remove cells and headers, then readd them.
+- (void)reloadFrame; // Only reload frame.
 
-// Only reload frame.
-- (void)reloadFrame;
-- (void)reloadFrameAtIndexPath:(NSIndexPath *)indexPath;
+- (CGRect)rectForHeaderInSection:(NSInteger)section;
+- (CGRect)rectForSection:(NSInteger)section;
 
 @end
 
