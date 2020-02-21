@@ -23,8 +23,6 @@ static inline UIColor *UIColorRandom(void) {
 
 @property (nonatomic, strong) UIView *ceilingContainer;
 @property (nonatomic, strong) PDCLTableView *tableView;
-//@property (nonatomic, strong) UITableView *tableView;
-//@property (nonatomic, assign) BOOL animate;
 
 @end
 
@@ -42,54 +40,8 @@ static inline UIColor *UIColorRandom(void) {
         NSLog(@"section 0 => %@", NSStringFromCGRect([self.tableView rectForSection:0]));
         NSLog(@"section 1 => %@", NSStringFromCGRect([self.tableView rectForSection:1]));
     });
-    
-//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//        self.animate = YES;
-//        [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:3 inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
-//    });
 }
 
-//#pragma mark - PDCLTableViewDelegate && PDCLTableViewDataSource
-//- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-////    return <#expression#>
-//    if (self.animate == YES && indexPath.row == 3 && indexPath.section == 0) {
-//        NSLog(@"=======");
-//        return 100.f;
-//    }
-//    return 50.f;
-//}
-//
-//- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-//    return 10;
-//}
-//
-//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-//    return 10;
-//}
-//
-//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-//    return 100;
-//}
-//
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-//    UIView *view = [[UIView alloc] init];
-//    view.backgroundColor = UIColorRandom();
-//    return view;
-//}
-//
-//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-//    NSString *reuseId = [NSString stringWithFormat:@"section_%zd_row_%zd", indexPath.section, indexPath.row];
-//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseId];
-//    if (!cell) {
-//        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseId];
-//        cell.textLabel.text = [NSString stringWithFormat:@"%zd->row=%zd", indexPath.section, indexPath.row];
-//    }
-//
-//    if (self.animate == YES && indexPath.row == 3 && indexPath.section == 0) {
-//        NSLog(@">>>>>>>>");
-//    }
-//    return cell;
-//}
 - (UIView *)ceilingHeaderContainerForTableView:(PDCLTableView *)tableView {
     return self.ceilingContainer;
 }
@@ -99,7 +51,6 @@ static inline UIColor *UIColorRandom(void) {
 }
 
 - (NSInteger)tableView:(PDCLTableView *)tableView numberOfRowsInSection:(NSInteger)section {
-//    return 15;
     return 5;
 }
 
@@ -129,14 +80,6 @@ static inline UIColor *UIColorRandom(void) {
 }
 
 #pragma mark - Getter Methods
-//- (UITableView *)tableView {
-//    if (!_tableView) {
-//        _tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
-//        _tableView.delegate = self;
-//        _tableView.dataSource = self;
-//    }
-//    return _tableView;
-//}
 - (PDCLTableView *)tableView {
     if (!_tableView) {
         _tableView = [[PDCLTableView alloc] initWithFrame:CGRectMake(0, 0, 300, 500)];
