@@ -70,6 +70,12 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
                                     CGRectGetHeight(self.bounds));
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
+        CGRect headerRectInContainer = [self rectForHeaderInContainerAtSection:section];
+        if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(self.frame)) { break; }
+        
+        CGRect lastHeaderRectInContainer = [self rectForHeaderInContainerAtSection:section];
+        if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(lastHeaderRectInContainer)) { break; }
+        
         if (CGRectIntersectsRect(visibleRect, [self rectForSection:section])) {
             [self updateHeaderRectInSection:section];
         }
@@ -115,14 +121,13 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (void)addHeaderToContainerForSection:(NSInteger)section {
-    UIView *container = [self.dataSource ceilingHeaderContainerForTableView:self];
     PDCLTableViewHeaderFooterView *header = [self.headers objectOrNilAtIndex:section];
     
-    if (header.superview != container) {
+    if (header.superview != self.superview) {
         CGRect rect = [self rectForHeaderInSection:section];
-        rect.origin.y = 0.f;
+        rect.origin.y = CGRectGetMinY(self.frame);//0.f;
         header.frame = rect;
-        [container addSubview:header];
+        [self.superview addSubview:header];
     }
 }
 
@@ -141,8 +146,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     if (section < 0) { return CGRectNull; }
 
     CGRect rect = [[self.headerFrames objectOrNilAtIndex:section] CGRectValue];
-    UIView *container = [self.dataSource ceilingHeaderContainerForTableView:self];
-    CGRect convertRect = [self convertRect:rect toView:container];
+    CGRect convertRect = [self convertRect:rect toView:self.superview];
     return convertRect;
 }
 
@@ -298,7 +302,6 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (void)setDataSource:(id<PDCLTableViewDataSource>)dataSource {
     _dataSource = dataSource;
 
-    NSAssert([_dataSource respondsToSelector:@selector(ceilingHeaderContainerForTableView:)], @"The protocol method `ceilingHeaderContainerForTableView:` must be impl!");
     NSAssert([_dataSource respondsToSelector:@selector(tableView:numberOfRowsInSection:)], @"The protocol method `tableView:numberOfRowsInSection:` must be impl!");
     NSAssert([_dataSource respondsToSelector:@selector(tableView:cellForRowAtIndexPath:)], @"The protocol method `tableView:cellForRowAtIndexPath:` must be impl!");
     NSAssert([_dataSource respondsToSelector:@selector(numberOfSectionsInTableView:)], @"The protocol method `numberOfSectionsInTableView:` must be impl!");

@@ -19,9 +19,8 @@ static inline UIColor *UIColorRandom(void) {
                            alpha:1.f];
 }
 
-@interface ViewController () <UITableViewDelegate, UITableViewDataSource, PDCLTableViewDelegate, PDCLTableViewDataSource>
+@interface ViewController () <PDCLTableViewDelegate, PDCLTableViewDataSource>
 
-@property (nonatomic, strong) UIView *ceilingContainer;
 @property (nonatomic, strong) PDCLTableView *tableView;
 
 @end
@@ -32,20 +31,10 @@ static inline UIColor *UIColorRandom(void) {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    _ceilingContainer = [[UIView alloc] initWithFrame:CGRectMake(30, 100, 300, 500)];
-    [self.view addSubview:_ceilingContainer];
-    [_ceilingContainer addSubview:self.tableView];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSLog(@"section 0 => %@", NSStringFromCGRect([self.tableView rectForSection:0]));
-        NSLog(@"section 1 => %@", NSStringFromCGRect([self.tableView rectForSection:1]));
-    });
+    [self.view addSubview:self.tableView];
 }
 
-- (UIView *)ceilingHeaderContainerForTableView:(PDCLTableView *)tableView {
-    return self.ceilingContainer;
-}
-
+#pragma mark - PDCLTableViewDelegate && PDCLTableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(PDCLTableView *)tableView {
     return 4;
 }
@@ -82,10 +71,11 @@ static inline UIColor *UIColorRandom(void) {
 #pragma mark - Getter Methods
 - (PDCLTableView *)tableView {
     if (!_tableView) {
-        _tableView = [[PDCLTableView alloc] initWithFrame:CGRectMake(0, 0, 300, 500)];
+        _tableView = [[PDCLTableView alloc] initWithFrame:self.view.bounds];
         _tableView.delegate = self;
         _tableView.dataSource = self;
         _tableView.bounces = YES;
+        // _tableView.contentInset = UIEdgeInsetsMake(10.f, 0.f, 0.f, 0.f);
     }
     return _tableView;
 }

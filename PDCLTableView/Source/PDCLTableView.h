@@ -24,8 +24,6 @@ typedef UIView PDCLTableViewHeaderFooterView;
 
 @protocol PDCLTableViewDataSource <NSObject>
 
-- (UIView *)ceilingHeaderContainerForTableView:(PDCLTableView *)tableView;
-
 - (NSInteger)tableView:(PDCLTableView *)tableView numberOfRowsInSection:(NSInteger)section;
 - (PDCLTableViewCell *)tableView:(PDCLTableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSInteger)numberOfSectionsInTableView:(PDCLTableView *)tableView;
