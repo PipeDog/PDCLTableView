@@ -9,80 +9,6 @@
 #import "PDCLTableView.h"
 #import "NSMutableArray+PDAdd.h"
 
-/*
-typedef NSNumber * PDCLTableViewSection;
-
-@interface PDCLLinkNode : NSObject
-
-@property (nonatomic, weak) PDCLLinkNode *prev;
-@property (nonatomic, weak) PDCLLinkNode *next;
-@property (nonatomic, weak) PDCLTableViewSection key;
-@property (nonatomic, weak) UIView *value;
-
-@end
-
-@implementation PDCLLinkNode
-
-@end
-
-@interface PDCLLinkMap : NSObject
-
-@property (nonatomic, weak) PDCLLinkNode *head;
-@property (nonatomic, weak) PDCLLinkNode *tail;
-@property (nonatomic, strong) NSMutableDictionary<PDCLTableViewSection, PDCLLinkNode *> *holder;
-
-- (void)removeAllNodes;
-- (PDCLLinkNode *)nodeForKey:(PDCLTableViewSection)section;
-- (void)didUpdateToObjects:(NSArray<UIView *> *)objects;
-
-@end
-
-@implementation PDCLLinkMap
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _holder = [NSMutableDictionary dictionary];
-    }
-    return self;
-}
-
-- (void)removeAllNodes {
-    _head = nil;
-    _tail = nil;
-    [_holder removeAllObjects];
-}
-
-- (PDCLLinkNode *)nodeForKey:(PDCLTableViewSection)section {
-    return self.holder[section];
-}
-
-- (void)didUpdateToObjects:(NSArray *)objects {
-    [_holder removeAllObjects];
-    
-    if (!objects.count) {
-        return;
-    }
-    
-    PDCLLinkNode *prev = nil;
-    for (NSInteger i = 0; i < objects.count; i++) {
-        PDCLLinkNode *node = [[PDCLLinkNode alloc] init];
-        node.value = objects[i];
-        node.prev = prev;
-        node.next = nil;
-        
-        prev.next = node;
-        prev = node;
-        self.holder[@(i)] = node;
-    }
-    
-    self.head = self.holder[@0];
-    self.tail = self.holder[@(objects.count - 1)];
-}
-
-@end
- */
-
 typedef NSString * PDCLTableViewKVOKeyPath;
 
 static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"contentOffset";
@@ -142,59 +68,15 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
                                     self.contentOffset.y,
                                     CGRectGetWidth(self.bounds),
                                     CGRectGetHeight(self.bounds));
-//    CGFloat offsetY = scrollView.contentOffset.y;
-//
-//        if (offsetY >= self.imageView.frame.size.height) {
-//            //将redView控件添加到控制器的view中，设置Y值为0
-//            CGRect redFrame = self.redView.frame;
-//            redFrame.origin.y = 0;
-//            self.redView.frame = redFrame;
-//            [self.view addSubview:self.redView];
-//        }else{
-//            //将redView控件添加到scrollView中，设置Y值为图片的高度
-//            CGRect redFrame = self.redView.frame;
-//            redFrame.origin.y = 140;
-//            self.redView.frame = redFrame;
-//            [self.scrollView addSubview:self.redView];
-//        }
-    
-    
-
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
         if (CGRectIntersectsRect(visibleRect, [self rectForSection:section])) {
             [self updateHeaderRectInSection:section];
-//            break;
         }
     }
 }
 
 - (void)updateHeaderRectInSection:(NSInteger)section {
-    /*
-    // 完全在屏幕外
-    CGRect rect = [self rectForHeaderInContainerAtSection:section];
-    if (CGRectGetMaxY(rect) < 0) { return; }
-
-    // 还未接触到上个 section 吸顶的 header
-    CGRect lastRect = [self rectForHeaderInSection:section - 1];
-    if (CGRectGetMinY(rect) > CGRectGetHeight(lastRect)) { return; }
-
-    // TODO: 更新上一个吸顶 header 的 frame
-    PDCLTableViewHeaderFooterView *lastView = [self.headers objectOrNilAtIndex:section - 1];
-    CGRect lastViewRect = lastView.frame;
-    lastViewRect.origin.y = (CGRectGetMinY(rect) - CGRectGetHeight(lastViewRect));
-    lastView.frame = lastViewRect;
-    
-    // 吸顶
-    if (CGRectGetMinY(rect) <= 0) {
-        [self addHeaderToContainerForSection:section];
-    } else {
-        [self addHeaderToSelfForSection:section];
-    }
-     */
-    
-    UIView *container = [self.dataSource ceilingHeaderContainerForTableView:self];
-    
     NSInteger lastSection = section - 1;
     UIView *lastHeader = [self.headers objectOrNilAtIndex:lastSection];
     
@@ -208,7 +90,6 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
             CGRect lastHeaderRealRectInContainer = lastHeader.frame;
             lastHeaderRealRectInContainer.origin.y = -(CGRectGetHeight(lastHeader.frame) - CGRectGetMinY(currentHeaderRectInContainer));
             lastHeader.frame = lastHeaderRealRectInContainer;
-//            [container addSubview:lastHeader];
         } else {
             // Do nothing...
         }
