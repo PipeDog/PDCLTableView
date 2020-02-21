@@ -39,7 +39,9 @@ static inline UIColor *UIColorRandom(void) {
 }
 
 - (void)reload {
-    [self.tableView reloadFrame];
+    [UIView animateWithDuration:0.5f animations:^{
+        [self.tableView reloadFrame];
+    }];
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self reload];
