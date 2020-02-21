@@ -281,7 +281,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 
 #pragma mark - Setter Methods
 - (void)setDelegate:(id<PDCLTableViewDelegate>)delegate {
-    _delegate = delegate;
+    [super setDelegate:(_delegate = delegate)];
     
     NSAssert([_delegate respondsToSelector:@selector(tableView:heightForRowAtIndexPath:)], @"The protocol method `tableView:heightForRowAtIndexPath:` must be impl!");
     NSAssert([_delegate respondsToSelector:@selector(tableView:heightForHeaderInSection:)], @"The protocol method `tableView:heightForHeaderInSection:` must be impl!");

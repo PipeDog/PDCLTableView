@@ -82,6 +82,10 @@ static inline UIColor *UIColorRandom(void) {
     return cell;
 }
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    // Do something here...
+}
+
 #pragma mark - Getter Methods
 - (PDCLTableView *)tableView {
     if (!_tableView) {
