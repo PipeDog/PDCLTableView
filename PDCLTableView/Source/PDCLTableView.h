@@ -5,6 +5,8 @@
 //  Created by liang on 2020/2/20.
 //  Copyright © 2020 liang. All rights reserved.
 //
+//  Without reuse mechanism, support ceiling header.
+//
 
 #import <UIKit/UIKit.h>
 
