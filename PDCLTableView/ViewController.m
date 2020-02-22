@@ -93,7 +93,7 @@ static inline UIColor *UIColorRandom(void) {
         _tableView.delegate = self;
         _tableView.dataSource = self;
         _tableView.bounces = YES;
-        // _tableView.contentInset = UIEdgeInsetsMake(10.f, 0.f, 0.f, 0.f);
+        _tableView.contentInset = UIEdgeInsetsMake(10.f, 10.f, 10.f, 10.f);
     }
     return _tableView;
 }

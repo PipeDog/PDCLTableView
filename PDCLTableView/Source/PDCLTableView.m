@@ -112,6 +112,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     if (header.superview != self.superview) {
         CGRect rect = [self rectForHeaderInSection:section];
         rect.origin.y = CGRectGetMinY(self.frame);
+        rect.origin.x = self.contentInset.left;
         header.frame = rect;
         [self.superview addSubview:header];
     }
@@ -162,7 +163,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     _totalHeight = self.contentInset.top; // Start top position.
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
-        CGFloat left = self.contentInset.left;
+        CGFloat left = 0.f;
         
         // Add section header
         PDCLTableViewHeaderFooterView *header = [self.delegate tableView:self viewForHeaderInSection:section];
@@ -215,7 +216,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     _totalHeight = self.contentInset.top; // Start top position.
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
-        CGFloat left = self.contentInset.left;
+        CGFloat left = 0.f;
         
         // Reset header frame
         PDCLTableViewHeaderFooterView *header = self.headers[section];

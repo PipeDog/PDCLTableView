@@ -10,9 +10,9 @@
 
 #import <UIKit/UIKit.h>
 
-@class PDCLTableView;
-
 NS_ASSUME_NONNULL_BEGIN
+
+@class PDCLTableView;
 
 typedef UIView PDCLTableViewCell;
 typedef UIView PDCLTableViewHeaderFooterView;
@@ -46,7 +46,6 @@ typedef UIView PDCLTableViewHeaderFooterView;
 
 - (CGRect)rectForHeaderInSection:(NSInteger)section;
 - (CGRect)rectForSection:(NSInteger)section;
-
 
 - (nullable PDCLTableViewCell *)cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (nullable NSArray<PDCLTableViewCell *> *)cellsInSection:(NSInteger)section;
