@@ -165,7 +165,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
         CGFloat left = self.contentInset.left;
         
         // Add section header
-        PDCLTableViewHeaderFooterView *header = [self.dataSource tableView:self viewForHeaderInSection:section];
+        PDCLTableViewHeaderFooterView *header = [self.delegate tableView:self viewForHeaderInSection:section];
         CGFloat headerHeight = [self.delegate tableView:self heightForHeaderInSection:section];
         
         CGRect headerFrame = CGRectMake(left, _totalHeight, self.tableWidth, headerHeight);
@@ -273,6 +273,25 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     return CGRectMake(self.contentInset.left, CGRectGetMinY(headerFrame), self.tableWidth, height);
 }
 
+- (PDCLTableViewCell *)cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSArray<PDCLTableViewCell *> *cellsInSection = [self.cells objectOrNilAtIndex:indexPath.section];
+    return [cellsInSection objectOrNilAtIndex:indexPath.row];
+}
+
+- (NSArray<PDCLTableViewCell *> *)cellsInSection:(NSInteger)section {
+    NSArray<PDCLTableViewCell *> *cellsInSection = [self.cells objectOrNilAtIndex:section];
+    return [cellsInSection copy];
+}
+
+- (PDCLTableViewHeaderFooterView *)headerViewForSection:(NSInteger)section {
+    return [self.headers objectOrNilAtIndex:section];
+}
+
+- (NSInteger)numberOfRowsInSection:(NSInteger)section {
+    NSArray<PDCLTableViewCell *> *cellsInSection = [self.cells objectOrNilAtIndex:section];
+    return cellsInSection.count;
+}
+
 #pragma mark - Override Methods
 - (void)didMoveToSuperview {
     [super didMoveToSuperview];
@@ -285,6 +304,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     
     NSAssert([_delegate respondsToSelector:@selector(tableView:heightForRowAtIndexPath:)], @"The protocol method `tableView:heightForRowAtIndexPath:` must be impl!");
     NSAssert([_delegate respondsToSelector:@selector(tableView:heightForHeaderInSection:)], @"The protocol method `tableView:heightForHeaderInSection:` must be impl!");
+    NSAssert([_delegate respondsToSelector:@selector(tableView:viewForHeaderInSection:)], @"The protocol method `tableView:viewForHeaderInSection:` must be impl!");
 }
 
 - (void)setDataSource:(id<PDCLTableViewDataSource>)dataSource {
@@ -293,10 +313,13 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     NSAssert([_dataSource respondsToSelector:@selector(tableView:numberOfRowsInSection:)], @"The protocol method `tableView:numberOfRowsInSection:` must be impl!");
     NSAssert([_dataSource respondsToSelector:@selector(tableView:cellForRowAtIndexPath:)], @"The protocol method `tableView:cellForRowAtIndexPath:` must be impl!");
     NSAssert([_dataSource respondsToSelector:@selector(numberOfSectionsInTableView:)], @"The protocol method `numberOfSectionsInTableView:` must be impl!");
-    NSAssert([_dataSource respondsToSelector:@selector(tableView:viewForHeaderInSection:)], @"The protocol method `tableView:viewForHeaderInSection:` must be impl!");
 }
 
 #pragma mark - Getter Methods
+- (NSInteger)numberOfSections {
+    return _numberOfSections;
+}
+
 - (NSMutableArray<NSMutableArray<PDCLTableViewCell *> *> *)cells {
     if (!_cells) {
         _cells = [NSMutableArray array];
