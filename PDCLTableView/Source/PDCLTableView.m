@@ -266,10 +266,13 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (CGRect)rectForSection:(NSInteger)section {
-    NSArray<NSValue *> *cellFramesInSection = [self.cellFrames objectOrNilAtIndex:section];
-    CGRect lastCellFrame = [cellFramesInSection.lastObject CGRectValue];
     CGRect headerFrame = [self rectForHeaderInSection:section];
+    NSArray<NSValue *> *cellFramesInSection = [self.cellFrames objectOrNilAtIndex:section];
+    if (!cellFramesInSection.count) {
+        return headerFrame;
+    }
     
+    CGRect lastCellFrame = [cellFramesInSection.lastObject CGRectValue];
     CGFloat height = CGRectGetMaxY(lastCellFrame) - CGRectGetMinY(headerFrame);
     return CGRectMake(self.contentInset.left, CGRectGetMinY(headerFrame), self.tableWidth, height);
 }

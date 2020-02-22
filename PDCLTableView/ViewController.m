@@ -54,7 +54,7 @@ static inline UIColor *UIColorRandom(void) {
 }
 
 - (NSInteger)tableView:(PDCLTableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 5;
+    return 15;
 }
 
 - (CGFloat)tableView:(PDCLTableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
