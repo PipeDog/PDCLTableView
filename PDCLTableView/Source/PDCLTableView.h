@@ -12,10 +12,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class PDCLTableView;
+@class PDCLTableView, PDCLTableViewHeaderFooterView;
 
 typedef UIView PDCLTableViewCell;
-typedef UIView PDCLTableViewHeaderFooterView;
 
 @protocol PDCLTableViewDelegate <UIScrollViewDelegate>
 
@@ -50,6 +49,13 @@ typedef UIView PDCLTableViewHeaderFooterView;
 - (nullable PDCLTableViewCell *)cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (nullable NSArray<PDCLTableViewCell *> *)cellsInSection:(NSInteger)section;
 - (nullable PDCLTableViewHeaderFooterView *)headerViewForSection:(NSInteger)section;
+- (nullable NSArray<PDCLTableViewHeaderFooterView *> *)allHeaders;
+
+@end
+
+@interface PDCLTableViewHeaderFooterView : UIView
+
+@property (nonatomic, assign) CGFloat ceilingOffset;
 
 @end
 

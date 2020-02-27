@@ -111,7 +111,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     
     if (header.superview != self.superview) {
         CGRect rect = [self rectForHeaderInSection:section];
-        rect.origin.y = CGRectGetMinY(self.frame);
+        rect.origin.y = CGRectGetMinY(self.frame) + header.ceilingOffset;
         rect.origin.x = self.contentInset.left;
         header.frame = rect;
         [self.superview addSubview:header];
@@ -296,6 +296,10 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     return cellsInSection.count;
 }
 
+- (NSArray<PDCLTableViewHeaderFooterView *> *)allHeaders {
+    return [self.headers copy];
+}
+
 #pragma mark - Override Methods
 - (void)didMoveToSuperview {
     [super didMoveToSuperview];
@@ -355,5 +359,9 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (CGFloat)tableWidth {
     return CGRectGetWidth(self.bounds) - (self.contentInset.left + self.contentInset.right);
 }
+
+@end
+
+@implementation PDCLTableViewHeaderFooterView
 
 @end

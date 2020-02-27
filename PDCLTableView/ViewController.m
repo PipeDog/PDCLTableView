@@ -66,11 +66,16 @@ static inline UIColor *UIColorRandom(void) {
 }
 
 - (PDCLTableViewHeaderFooterView *)tableView:(PDCLTableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    UILabel *header = [[UILabel alloc] init];
-    header.textColor = [UIColor whiteColor];
-    header.backgroundColor = UIColorRandom();
-    header.font = [UIFont boldSystemFontOfSize:30];
-    header.text = [NSString stringWithFormat:@"header section = %zd", section];
+    UILabel *textLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 20, 300.f, 60.f)];
+    textLabel.textColor = [UIColor whiteColor];
+    textLabel.backgroundColor = [UIColorRandom() colorWithAlphaComponent:0.3f];
+    textLabel.font = [UIFont boldSystemFontOfSize:30];
+    textLabel.text = [NSString stringWithFormat:@"header section = %zd", section];
+    
+    PDCLTableViewHeaderFooterView *header = [[PDCLTableViewHeaderFooterView alloc] init];
+    header.ceilingOffset = -10.f;
+    header.backgroundColor = [UIColorRandom() colorWithAlphaComponent:0.3f];
+    [header addSubview:textLabel];
     return header;
 }
 
