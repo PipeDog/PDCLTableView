@@ -73,7 +73,7 @@ static inline UIColor *UIColorRandom(void) {
     textLabel.text = [NSString stringWithFormat:@"header section = %zd", section];
     
     PDCLTableViewHeaderFooterView *header = [[PDCLTableViewHeaderFooterView alloc] init];
-    header.ceilingOffset = -10.f;
+    header.ceilingOffset = -20.f;
     header.backgroundColor = [UIColorRandom() colorWithAlphaComponent:0.3f];
     [header addSubview:textLabel];
     return header;

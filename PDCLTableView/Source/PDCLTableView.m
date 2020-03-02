@@ -99,7 +99,8 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
         }
     }
     
-    if (CGRectGetMinY(currentHeaderRectInContainer) <= 0.f) {
+    PDCLTableViewHeaderFooterView *currentHeader = [self headerViewForSection:section];
+    if (CGRectGetMinY(currentHeaderRectInContainer) < currentHeader.ceilingOffset) {
         [self addHeaderToSuperviewForSection:section];
     } else {
         [self addHeaderToSelfForSection:section];
