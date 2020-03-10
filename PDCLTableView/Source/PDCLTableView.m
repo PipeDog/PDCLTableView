@@ -84,9 +84,9 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 
 - (void)reloadHeaderInSectin:(NSInteger)section {
     NSInteger lastSection = section - 1;
-    UIView *lastHeader = [self.headers objectOrNilAtIndex:lastSection];
+    PDCLTableViewHeaderFooterView *lastHeader = [self.headers objectOrNilAtIndex:lastSection];
     
-    CGRect lastHeaderRectInContainer = CGRectMake(self.contentInset.left, 0.f, self.tableWidth, [self rectForHeaderInSection:section].size.height);//[self rectForHeaderInContainerAtSection:lastSection];
+    CGRect lastHeaderRectInContainer = CGRectMake(self.contentInset.left, lastHeader.ceilingOffset, self.tableWidth, [self rectForHeaderInSection:lastSection].size.height);
     CGRect currentHeaderRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
     
     if (lastHeader) {
