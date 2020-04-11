@@ -62,7 +62,7 @@ static inline UIColor *UIColorRandom(void) {
 }
 
 - (CGFloat)tableView:(PDCLTableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return 80.f;
+    return 80.f + section * 5.f;
 }
 
 - (PDCLTableViewHeaderFooterView *)tableView:(PDCLTableView *)tableView viewForHeaderInSection:(NSInteger)section {

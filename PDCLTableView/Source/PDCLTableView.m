@@ -73,7 +73,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
         CGRect headerRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
         if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(self.frame)) { break; }
         
-        CGRect lastHeaderRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
+        CGRect lastHeaderRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section - 1];
         if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(lastHeaderRectInContainer)) { break; }
         
         if (CGRectIntersectsRect(visibleRect, [self rectForSection:section])) {
