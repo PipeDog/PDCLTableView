@@ -9,7 +9,7 @@
 #import "PDCLTableView.h"
 #import "NSMutableArray+PDAdd.h"
 
-typedef NSString * PDCLTableViewKVOKeyPath;
+typedef NSString * PDCLTableViewKVOKeyPath NS_TYPED_ENUM;
 
 static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"contentOffset";
 
