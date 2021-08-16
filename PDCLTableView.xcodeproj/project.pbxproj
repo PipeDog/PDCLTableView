@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DD3A0E5426CA93A500A68BA6 /* PDCLTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DD3A0E5326CA93A500A68BA6 /* PDCLTableViewCell.m */; };
 		DD8FDD8C23FE35070080FAB6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DD8FDD8B23FE35070080FAB6 /* AppDelegate.m */; };
 		DD8FDD8F23FE35070080FAB6 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DD8FDD8E23FE35070080FAB6 /* SceneDelegate.m */; };
 		DD8FDD9223FE35070080FAB6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DD8FDD9123FE35070080FAB6 /* ViewController.m */; };
@@ -38,6 +39,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DD3A0E5226CA93A500A68BA6 /* PDCLTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PDCLTableViewCell.h; sourceTree = "<group>"; };
+		DD3A0E5326CA93A500A68BA6 /* PDCLTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PDCLTableViewCell.m; sourceTree = "<group>"; };
 		DD8FDD8723FE35070080FAB6 /* PDCLTableView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDCLTableView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD8FDD8A23FE35070080FAB6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DD8FDD8B23FE35070080FAB6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -151,6 +154,8 @@
 				DD8FDDC123FE351B0080FAB6 /* PDCLTableView.m */,
 				DD8FDDC323FE55580080FAB6 /* NSMutableArray+PDAdd.h */,
 				DD8FDDC423FE55580080FAB6 /* NSMutableArray+PDAdd.m */,
+				DD3A0E5226CA93A500A68BA6 /* PDCLTableViewCell.h */,
+				DD3A0E5326CA93A500A68BA6 /* PDCLTableViewCell.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -289,6 +294,7 @@
 				DD8FDDC523FE55580080FAB6 /* NSMutableArray+PDAdd.m in Sources */,
 				DD8FDD8C23FE35070080FAB6 /* AppDelegate.m in Sources */,
 				DD8FDD9D23FE35090080FAB6 /* main.m in Sources */,
+				DD3A0E5426CA93A500A68BA6 /* PDCLTableViewCell.m in Sources */,
 				DD8FDDC223FE351B0080FAB6 /* PDCLTableView.m in Sources */,
 				DD8FDD8F23FE35070080FAB6 /* SceneDelegate.m in Sources */,
 			);

@@ -80,10 +80,15 @@ static inline UIColor *UIColorRandom(void) {
 }
 
 - (PDCLTableViewCell *)tableView:(PDCLTableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UILabel *cell = [[UILabel alloc] init];
-    cell.textColor = UIColorRandom();
-    cell.backgroundColor = [UIColorRandom() colorWithAlphaComponent:0.1f];
-    cell.text = [NSString stringWithFormat:@"section = %zd, row = %zd", indexPath.section, indexPath.row];
+    PDCLTableViewCell *cell = [[PDCLTableViewCell alloc] init];
+    cell.clipsToBounds = YES;
+    
+    UILabel *textLabel = [[UILabel alloc] initWithFrame:CGRectMake(10.f, 0.f, 300.f, 100.f)];
+    textLabel.textColor = UIColorRandom();
+    textLabel.backgroundColor = [UIColorRandom() colorWithAlphaComponent:0.1f];
+    textLabel.text = [NSString stringWithFormat:@"section = %zd, row = %zd", indexPath.section, indexPath.row];
+    
+    [cell addSubview:textLabel];
     return cell;
 }
 
