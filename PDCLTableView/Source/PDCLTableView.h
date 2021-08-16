@@ -9,11 +9,12 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "PDCLTableViewCell.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class PDCLTableView, PDCLTableViewHeaderFooterView;
+
+typedef UIView PDCLTableViewCell;
 
 @protocol PDCLTableViewDelegate <UIScrollViewDelegate>
 

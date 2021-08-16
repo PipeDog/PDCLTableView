@@ -13,16 +13,56 @@ typedef NSString * PDCLTableViewKVOKeyPath NS_TYPED_ENUM;
 
 static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"contentOffset";
 
+@interface PDVirtualCellNode : NSObject
+
+@property (nonatomic, assign, readonly) NSInteger section;
+@property (nonatomic, assign, readonly) NSInteger row;
+@property (nonatomic, strong) PDCLTableViewCell *cell;
+@property (nonatomic, assign) CGRect cellRect;
+
+@end
+
+@implementation PDVirtualCellNode
+
+- (instancetype)initWithSection:(NSInteger)section row:(NSInteger)row {
+    self = [super init];
+    if (self) {
+        _section = section;
+        _row = row;
+    }
+    return self;
+}
+
+@end
+
+@interface PDVirtualHeaderFooterNode : NSObject
+
+@property (nonatomic, assign) NSInteger section;
+@property (nonatomic, strong) PDCLTableViewHeaderFooterView *view;
+@property (nonatomic, assign) CGRect viewRect;
+
+@end
+
+@implementation PDVirtualHeaderFooterNode
+
+- (instancetype)initWithSection:(NSInteger)section {
+    self = [super init];
+    if (self) {
+        _section = section;
+    }
+    return self;
+}
+
+@end
+
 @interface PDCLTableView () {
     CGFloat _totalHeight;
     NSInteger _numberOfSections;
 }
 
-@property (nonatomic, strong) NSMutableArray<NSMutableArray<PDCLTableViewCell *> *> *cells;
-@property (nonatomic, strong) NSMutableArray<NSMutableArray<NSValue *> *> *cellFrames;
-@property (nonatomic, strong) NSMutableArray<PDCLTableViewHeaderFooterView *> *headers;
-@property (nonatomic, strong) NSMutableArray<NSValue *> *headerFrames;
 @property (readonly) CGFloat tableWidth;
+@property (nonatomic, strong) NSMutableArray<NSMutableArray<PDVirtualCellNode *> *> *cellNodes;
+@property (nonatomic, strong) NSMutableArray<PDVirtualHeaderFooterNode *> *headerNodes;
 
 @end
 
@@ -41,7 +81,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        [self commitInit];
+        [self setupInitializeConfiguration];
     }
     return self;
 }
@@ -49,13 +89,17 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (instancetype)initWithCoder:(NSCoder *)coder {
     self = [super initWithCoder:coder];
     if (self) {
-        [self commitInit];
+        [self setupInitializeConfiguration];
     }
     return self;
 }
 
-- (void)commitInit {
-    [self addObserver:self forKeyPath:PDCLTableViewKVOKeyPathContentOffset options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+- (void)setupInitializeConfiguration {
+    _cellNodes = [NSMutableArray array];
+    _headerNodes = [NSMutableArray array];
+    
+    [self addObserver:self forKeyPath:PDCLTableViewKVOKeyPathContentOffset
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 }
 
 #pragma mark - Observer Methods
@@ -73,18 +117,36 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
         CGRect headerRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
         if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(self.frame)) { break; }
         
-        CGRect lastHeaderRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section - 1];
-        if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(lastHeaderRectInContainer)) { break; }
-        
         if (CGRectIntersectsRect(visibleRect, [self rectForSection:section])) {
             [self reloadHeaderInSectin:section];
+        }
+                
+        NSArray<PDVirtualCellNode *> *curSectionCellNodes = self.cellNodes[section];
+        NSInteger numberOfRows = [self.dataSource tableView:self numberOfRowsInSection:section];
+        
+        for (NSInteger row = 0; row < numberOfRows; row++) {
+            PDVirtualCellNode *cellNode = curSectionCellNodes[row];
+            CGRect cellRect = cellNode.cellRect;
+            
+            if (!CGRectIntersectsRect(visibleRect, cellRect)) {
+                break;
+            }
+            
+            if (!cellNode.cell) {
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+                PDCLTableViewCell *cell = [self.dataSource tableView:self cellForRowAtIndexPath:indexPath];
+                cell.frame = cellNode.cellRect;
+                cellNode.cell = cell;
+                [self addSubview:cell];
+            }
         }
     }
 }
 
 - (void)reloadHeaderInSectin:(NSInteger)section {
     NSInteger lastSection = section - 1;
-    PDCLTableViewHeaderFooterView *lastHeader = [self.headers objectOrNilAtIndex:lastSection];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:lastSection];
+    PDCLTableViewHeaderFooterView *lastHeader = headerNode.view;
     
     CGRect lastHeaderRectInContainer = CGRectMake(self.contentInset.left, lastHeader.ceilingOffset, self.tableWidth, [self rectForHeaderInSection:lastSection].size.height);
     CGRect currentHeaderRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
@@ -108,7 +170,8 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (void)addHeaderToSuperviewForSection:(NSInteger)section {
-    PDCLTableViewHeaderFooterView *header = [self.headers objectOrNilAtIndex:section];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    PDCLTableViewHeaderFooterView *header = headerNode.view;
     
     if (header.superview != self.superview) {
         CGRect rect = [self rectForHeaderInSection:section];
@@ -120,9 +183,10 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (void)addHeaderToSelfForSection:(NSInteger)section {
-    PDCLTableViewHeaderFooterView *header = [self.headers objectOrNilAtIndex:section];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    PDCLTableViewHeaderFooterView *header = headerNode.view;
     
-    if (header.superview != self) {
+    if (header.superview != self) { // check header if created???
         CGRect rect = [self rectForHeaderInSection:section];
         header.frame = rect;
         [self addSubview:header];
@@ -132,73 +196,94 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (CGRect)rectForHeaderInSectionBaseOnSuperview:(NSInteger)section {
     if (section < 0) { return CGRectNull; }
 
-    CGRect rect = [[self.headerFrames objectOrNilAtIndex:section] CGRectValue];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    if (!headerNode) { return CGRectNull; }
+    
+    CGRect rect = headerNode.viewRect;
     CGRect convertRect = [self convertRect:rect toView:self.superview];
     return convertRect;
 }
 
 #pragma mark - Public Methods
 - (void)reloadData {
-    // Remove all headers
-    for (PDCLTableViewHeaderFooterView *view in _headers) {
-        [view removeFromSuperview];
+    // remove all headers
+    for (PDVirtualHeaderFooterNode *node in [_headerNodes copy]) {
+        if (!node.view) { break; }
+        [node.view removeFromSuperview];
     }
     
-    [_headers removeAllObjects];
-    [_headerFrames removeAllObjects];
+    [_headerNodes removeAllObjects];
     
-    // Remove all cells
-    for (NSMutableArray *cellsInSection in _cells) {
-        for (PDCLTableViewCell *cell in cellsInSection) {
-            [cell removeFromSuperview];
+    // remove all cells
+    for (NSArray *curSectionCellNodes in [_cellNodes copy]) {
+        for (PDVirtualCellNode *node in curSectionCellNodes) {
+            if (!node.cell) { break; }
+            [node.cell removeFromSuperview];
         }
     }
     
-    [_cells removeAllObjects];
-    [_cellFrames removeAllObjects];
+    [_cellNodes removeAllObjects];
     
-    // Add cells and headers to self and calculate subviews frames.
+    // add cells and headers to self and calculate subviews frames.
     _numberOfSections = [self.dataSource numberOfSectionsInTableView:self];
     if (!_numberOfSections) { return; }
     
-    _totalHeight = self.contentInset.top; // Start top position.
+    // start top position.
+    _totalHeight = self.contentInset.top;
+    
+    // get visible frame
+    CGRect visibleRect = CGRectMake(self.contentOffset.x,
+                                    self.contentOffset.y,
+                                    CGRectGetWidth(self.bounds),
+                                    CGRectGetHeight(self.bounds));
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
         CGFloat left = 0.f;
         
-        // Add section header
-        PDCLTableViewHeaderFooterView *header = [self.delegate tableView:self viewForHeaderInSection:section];
+        // setup header node info
+        PDVirtualHeaderFooterNode *headerNode = [[PDVirtualHeaderFooterNode alloc] initWithSection:section];
+        [_headerNodes addObject:headerNode];
+        
         CGFloat headerHeight = [self.delegate tableView:self heightForHeaderInSection:section];
+        CGRect headerRect = CGRectMake(left, _totalHeight, self.tableWidth, headerHeight);
+        headerNode.viewRect = headerRect;
         
-        CGRect headerFrame = CGRectMake(left, _totalHeight, self.tableWidth, headerHeight);
-        header.frame = headerFrame;
-        _totalHeight += headerHeight;
-        
-        [self addSubview:header];
-        [self.headers addObject:header];
-        [self.headerFrames addObject:[NSValue valueWithCGRect:headerFrame]];
-        
-        // Add cells for section
-        NSMutableArray<PDCLTableViewCell *> *cellsInSection = [NSMutableArray array];
-        NSMutableArray<NSValue *> *cellFramesInSection = [NSMutableArray array];
-        
-        NSInteger numberOfRows = [self.dataSource tableView:self numberOfRowsInSection:section];
-        for (NSInteger row = 0; row < numberOfRows; row++) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-            PDCLTableViewCell *cell = [self.dataSource tableView:self cellForRowAtIndexPath:indexPath];
-            CGFloat cellHeight = [self.delegate tableView:self heightForRowAtIndexPath:indexPath];
-            
-            CGRect cellFrame = CGRectMake(left, _totalHeight, self.tableWidth, cellHeight);
-            cell.frame = cellFrame;
-            _totalHeight += cellHeight;
-            
-            [self addSubview:cell];
-            [cellsInSection addObject:cell];
-            [cellFramesInSection addObject:[NSValue valueWithCGRect:cellFrame]];
+        BOOL headerShouldAddToSuperview = CGRectIntersectsRect(visibleRect, headerRect);
+        if (headerShouldAddToSuperview) {
+            PDCLTableViewHeaderFooterView *header = [self.delegate tableView:self viewForHeaderInSection:section];
+            header.frame = headerRect;
+            headerNode.view = header;
+            [self addSubview:header];
         }
         
-        [self.cells addObject:cellsInSection];
-        [self.cellFrames addObject:cellFramesInSection];
+        // update total height
+        _totalHeight += headerHeight;
+
+        // setup cell nodes info
+        NSMutableArray<PDVirtualCellNode *> *curSectionCellNodes = [NSMutableArray array];
+        [_cellNodes addObject:curSectionCellNodes];
+        NSInteger numberOfRows = [self.dataSource tableView:self numberOfRowsInSection:section];
+        
+        for (NSInteger row = 0; row < numberOfRows; row++) {
+            // setup cell node info at index `row`
+            PDVirtualCellNode *cellNode = [[PDVirtualCellNode alloc] initWithSection:section row:row];
+            [curSectionCellNodes addObject:cellNode];
+            
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+            CGFloat cellHeight = [self.delegate tableView:self heightForRowAtIndexPath:indexPath];
+            CGRect cellRect = CGRectMake(left, _totalHeight, self.tableWidth, cellHeight);
+            cellNode.cellRect = cellRect;
+
+            BOOL cellShouldAddToSuperview = CGRectIntersectsRect(visibleRect, cellRect);
+            if (cellShouldAddToSuperview) {
+                PDCLTableViewCell *cell = [self.dataSource tableView:self cellForRowAtIndexPath:indexPath];
+                cell.frame = cellRect;
+                cellNode.cell = cell;
+                [self addSubview:cell];
+            }
+            
+            _totalHeight += cellHeight;
+        }
     }
     
     _totalHeight += self.contentInset.bottom;
@@ -206,53 +291,56 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (void)reloadFrame {
-    if (!_headers.count) { return; }
-    if (!_cells.count) { return; }
-    
-    // Remove origin frames
-    [_headerFrames removeAllObjects];
-    [_cellFrames removeAllObjects];
-    
-    // Add cells and headers to self and calculate subviews frames.
-    _totalHeight = self.contentInset.top; // Start top position.
+    if (!_headerNodes.count && !_cellNodes.count) {
+        return;
+    }
+        
+    // start top position.
+    _totalHeight = self.contentInset.top;
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
         CGFloat left = 0.f;
         
-        // Reset header frame
-        PDCLTableViewHeaderFooterView *header = self.headers[section];
-        CGFloat headerHeight = [self.delegate tableView:self heightForHeaderInSection:section];
-        CGRect headerFrame = CGRectMake(left, _totalHeight, self.tableWidth, headerHeight);
+        // get header at section
+        PDVirtualHeaderFooterNode *headerNode = self.headerNodes[section];
+        PDCLTableViewHeaderFooterView *header = headerNode.view;
         
-        if (header.superview == self) {
-            header.frame = headerFrame;
-        } else {
-            CGRect rect = header.frame;
-            rect.size.height = headerHeight;
-            header.frame = rect;
+        // reset header rect
+        CGFloat headerHeight = [self.delegate tableView:self heightForHeaderInSection:section];
+        CGRect headerRect = CGRectMake(left, _totalHeight, self.tableWidth, headerHeight);
+        headerNode.viewRect = headerRect;
+        
+        if (header) {
+            if (header.superview == self) {
+                header.frame = headerRect;
+            } else {
+                CGRect rect = header.frame;
+                rect.size.height = headerHeight;
+                header.frame = rect;
+            }
         }
         
         _totalHeight += headerHeight;
-        [self.headerFrames addObject:[NSValue valueWithCGRect:headerFrame]];
-        
-        // Add cells for section
-        NSMutableArray<PDCLTableViewCell *> *cellsInSection = self.cells[section];
-        NSMutableArray<NSValue *> *cellFramesInSection = [NSMutableArray array];
-        
-        NSInteger numberOfRows = [self.dataSource tableView:self numberOfRowsInSection:section];
-        for (NSInteger row = 0; row < numberOfRows; row++) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-            PDCLTableViewCell *cell = cellsInSection[row];
-            CGFloat cellHeight = [self.delegate tableView:self heightForRowAtIndexPath:indexPath];
-            
-            CGRect cellFrame = CGRectMake(left, _totalHeight, self.tableWidth, cellHeight);
-            cell.frame = cellFrame;
-            _totalHeight += cellHeight;
-            
-            [cellFramesInSection addObject:[NSValue valueWithCGRect:cellFrame]];
-        }
 
-        [self.cellFrames addObject:cellFramesInSection];
+        // update cell frames
+        NSArray<PDVirtualCellNode *> *curSectionCellNodes = self.cellNodes[section];
+        NSInteger numberOfRows = [self.dataSource tableView:self numberOfRowsInSection:section];
+        
+        for (NSInteger row = 0; row < numberOfRows; row++) {
+            PDVirtualCellNode *cellNode = curSectionCellNodes[row];
+            PDCLTableViewCell *cell = cellNode.cell;
+            
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+            CGFloat cellHeight = [self.delegate tableView:self heightForRowAtIndexPath:indexPath];
+            CGRect cellRect = CGRectMake(left, _totalHeight, self.tableWidth, cellHeight);
+            cellNode.cellRect = cellRect;
+            
+            if (cell) {
+                cell.frame = cellRect;
+            }
+            
+            _totalHeight += cellHeight;
+        }
     }
     
     _totalHeight += self.contentInset.bottom;
@@ -260,45 +348,85 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (CGRect)rectForHeaderInSection:(NSInteger)section {
-    NSValue *rectValue = [self.headerFrames objectOrNilAtIndex:section];
-    if (!rectValue) { return CGRectNull; }
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    if (!headerNode) { return CGRectNull; }
     
-    return [rectValue CGRectValue];
+    return headerNode.viewRect;
 }
 
 - (CGRect)rectForSection:(NSInteger)section {
     CGRect headerFrame = [self rectForHeaderInSection:section];
-    NSArray<NSValue *> *cellFramesInSection = [self.cellFrames objectOrNilAtIndex:section];
-    if (!cellFramesInSection.count) {
-        return headerFrame;
-    }
     
-    CGRect lastCellFrame = [cellFramesInSection.lastObject CGRectValue];
-    CGFloat height = CGRectGetMaxY(lastCellFrame) - CGRectGetMinY(headerFrame);
+    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes objectOrNilAtIndex:section];
+    if (!curSectionCellNodes.count) { return headerFrame; }
+    
+    PDVirtualCellNode *lastCellNode = curSectionCellNodes.lastObject;
+    CGRect lastCellRect = lastCellNode.cellRect;
+    CGFloat height = CGRectGetMaxY(lastCellRect) - CGRectGetMinY(headerFrame);
     return CGRectMake(self.contentInset.left, CGRectGetMinY(headerFrame), self.tableWidth, height);
 }
 
 - (PDCLTableViewCell *)cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSArray<PDCLTableViewCell *> *cellsInSection = [self.cells objectOrNilAtIndex:indexPath.section];
-    return [cellsInSection objectOrNilAtIndex:indexPath.row];
+    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes objectOrNilAtIndex:indexPath.section];
+    if (!curSectionCellNodes.count) { return nil; }
+    
+    PDVirtualCellNode *cellNode = curSectionCellNodes[indexPath.row];
+    if (!cellNode) { return nil; }
+    
+    if (!cellNode.cell) {
+        cellNode.cell = [self.dataSource tableView:self cellForRowAtIndexPath:indexPath];
+    }
+    
+    return cellNode.cell;
 }
 
 - (NSArray<PDCLTableViewCell *> *)cellsInSection:(NSInteger)section {
-    NSArray<PDCLTableViewCell *> *cellsInSection = [self.cells objectOrNilAtIndex:section];
-    return [cellsInSection copy];
+    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes objectOrNilAtIndex:section];
+    if (!curSectionCellNodes.count) { return nil; }
+    
+    NSMutableArray *cells = [NSMutableArray array];
+    
+    for (NSInteger row = 0; row < curSectionCellNodes.count; row++) {
+        PDVirtualCellNode *cellNode = curSectionCellNodes[row];
+        if (!cellNode.cell) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+            cellNode.cell = [self.dataSource tableView:self cellForRowAtIndexPath:indexPath];
+        }
+        [cells addObject:cellNode.cell];
+    }
+    
+    return [cells copy];
 }
 
 - (PDCLTableViewHeaderFooterView *)headerViewForSection:(NSInteger)section {
-    return [self.headers objectOrNilAtIndex:section];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    if (!headerNode) { return nil; }
+    
+    if (!headerNode.view) {
+        headerNode.view = [self.delegate tableView:self viewForHeaderInSection:section];
+        headerNode.view.frame = headerNode.viewRect;
+        [self addSubview:headerNode.view];
+    }
+    return headerNode.view;
 }
 
 - (NSInteger)numberOfRowsInSection:(NSInteger)section {
-    NSArray<PDCLTableViewCell *> *cellsInSection = [self.cells objectOrNilAtIndex:section];
-    return cellsInSection.count;
+    NSArray *cellNodesInSection = [self.cellNodes objectOrNilAtIndex:section];
+    return cellNodesInSection.count;
 }
 
 - (NSArray<PDCLTableViewHeaderFooterView *> *)allHeaders {
-    return [self.headers copy];
+    NSMutableArray *headers = [NSMutableArray array];
+    
+    for (NSInteger section = 0; section < self.headerNodes.count; section++) {
+        PDVirtualHeaderFooterNode *headerNode = self.headerNodes[section];
+        if (!headerNode.view) {
+            headerNode.view = [self.delegate tableView:self viewForHeaderInSection:section];
+        }
+        [headers addObject:headerNode.view];
+    }
+
+    return [headers copy];
 }
 
 #pragma mark - Override Methods
@@ -327,34 +455,6 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 #pragma mark - Getter Methods
 - (NSInteger)numberOfSections {
     return _numberOfSections;
-}
-
-- (NSMutableArray<NSMutableArray<PDCLTableViewCell *> *> *)cells {
-    if (!_cells) {
-        _cells = [NSMutableArray array];
-    }
-    return _cells;
-}
-
-- (NSMutableArray<NSMutableArray<NSValue *> *> *)cellFrames {
-    if (!_cellFrames) {
-        _cellFrames = [NSMutableArray array];
-    }
-    return _cellFrames;
-}
-
-- (NSMutableArray<PDCLTableViewHeaderFooterView *> *)headers {
-    if (!_headers) {
-        _headers = [NSMutableArray array];
-    }
-    return _headers;
-}
-
-- (NSMutableArray<NSValue *> *)headerFrames {
-    if (!_headerFrames) {
-        _headerFrames = [NSMutableArray array];
-    }
-    return _headerFrames;
 }
 
 - (CGFloat)tableWidth {
