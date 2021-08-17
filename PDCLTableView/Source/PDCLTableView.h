@@ -40,7 +40,7 @@ typedef UIView PDCLTableViewCell;
 @property (nonatomic, readonly) NSInteger numberOfSections;
 - (NSInteger)numberOfRowsInSection:(NSInteger)section;
 
-- (void)reloadData; // Remove cells and headers, then readd them.
+- (void)reloadData; // Remove cells and headers, then add them again
 - (void)reloadFrame; // Only reload frame.
 
 - (CGRect)rectForHeaderInSection:(NSInteger)section;

@@ -103,7 +103,10 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 #pragma mark - Observer Methods
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context {
     if (![keyPath isEqualToString:PDCLTableViewKVOKeyPathContentOffset]) {
         return;
     }
@@ -436,13 +439,10 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     NSMutableArray *headers = [NSMutableArray array];
     
     for (NSInteger section = 0; section < self.headerNodes.count; section++) {
-        PDVirtualHeaderFooterNode *headerNode = self.headerNodes[section];
-        if (!headerNode.view) {
-            headerNode.view = [self.delegate tableView:self viewForHeaderInSection:section];
-        }
-        [headers addObject:headerNode.view];
+        UIView *header = [self headerViewForSection:section];
+        if (header) { [headers addObject:header]; }
     }
-
+    
     return [headers copy];
 }
 
