@@ -71,7 +71,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 @synthesize delegate = _delegate;
 
 - (void)dealloc {
-    [self removeObserver:self forKeyPath:PDCLTableViewKVOKeyPathContentOffset];
+    [self _removeObserver];
 }
 
 - (instancetype)init {
@@ -81,7 +81,8 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        [self setupInitializeConfiguration];
+        [self _setupInitializeConfiguration];
+        [self _addObserver];
     }
     return self;
 }
@@ -89,17 +90,25 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (instancetype)initWithCoder:(NSCoder *)coder {
     self = [super initWithCoder:coder];
     if (self) {
-        [self setupInitializeConfiguration];
+        [self _setupInitializeConfiguration];
+        [self _addObserver];
     }
     return self;
 }
 
-- (void)setupInitializeConfiguration {
+#pragma mark - Initialize Methods
+- (void)_setupInitializeConfiguration {
     _cellNodes = [NSMutableArray array];
     _headerNodes = [NSMutableArray array];
-    
+}
+
+- (void)_addObserver {
     [self addObserver:self forKeyPath:PDCLTableViewKVOKeyPathContentOffset
               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+}
+
+- (void)_removeObserver {
+    [self removeObserver:self forKeyPath:PDCLTableViewKVOKeyPathContentOffset];
 }
 
 #pragma mark - Observer Methods
@@ -111,17 +120,14 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
         return;
     }
     
-    CGRect visibleRect = CGRectMake(self.contentOffset.x,
-                                    self.contentOffset.y,
-                                    CGRectGetWidth(self.bounds),
-                                    CGRectGetHeight(self.bounds));
+    CGRect visibleRect = self.visibleRect;
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
-        CGRect headerRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
+        CGRect headerRectInContainer = [self _rectForHeaderInSectionBaseOnSuperview:section];
         if (CGRectGetMinY(headerRectInContainer) > CGRectGetHeight(self.frame)) { break; }
         
         if (CGRectIntersectsRect(visibleRect, [self rectForSection:section])) {
-            [self reloadHeaderInSectin:section];
+            [self _reloadHeaderInSectin:section];
         }
                 
         NSArray<PDVirtualCellNode *> *curSectionCellNodes = self.cellNodes[section];
@@ -146,13 +152,14 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     }
 }
 
-- (void)reloadHeaderInSectin:(NSInteger)section {
+#pragma mark - Private Methods
+- (void)_reloadHeaderInSectin:(NSInteger)section {
     NSInteger lastSection = section - 1;
     PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:lastSection];
     PDCLTableViewHeaderFooterView *lastHeader = headerNode.view;
     
     CGRect lastHeaderRectInContainer = CGRectMake(self.contentInset.left, lastHeader.ceilingOffset, self.tableWidth, [self rectForHeaderInSection:lastSection].size.height);
-    CGRect currentHeaderRectInContainer = [self rectForHeaderInSectionBaseOnSuperview:section];
+    CGRect currentHeaderRectInContainer = [self _rectForHeaderInSectionBaseOnSuperview:section];
     
     if (lastHeader) {
         if (CGRectIntersectsRect(currentHeaderRectInContainer, lastHeaderRectInContainer)) {
@@ -166,13 +173,13 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     
     PDCLTableViewHeaderFooterView *currentHeader = [self headerViewForSection:section];
     if (CGRectGetMinY(currentHeaderRectInContainer) < currentHeader.ceilingOffset) {
-        [self addHeaderToSuperviewForSection:section];
+        [self _addHeaderToSuperviewForSection:section];
     } else {
-        [self addHeaderToSelfForSection:section];
+        [self _addHeaderToSelfForSection:section];
     }
 }
 
-- (void)addHeaderToSuperviewForSection:(NSInteger)section {
+- (void)_addHeaderToSuperviewForSection:(NSInteger)section {
     PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
     PDCLTableViewHeaderFooterView *header = headerNode.view;
     
@@ -185,7 +192,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     }
 }
 
-- (void)addHeaderToSelfForSection:(NSInteger)section {
+- (void)_addHeaderToSelfForSection:(NSInteger)section {
     PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
     PDCLTableViewHeaderFooterView *header = headerNode.view;
     
@@ -196,7 +203,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     }
 }
 
-- (CGRect)rectForHeaderInSectionBaseOnSuperview:(NSInteger)section {
+- (CGRect)_rectForHeaderInSectionBaseOnSuperview:(NSInteger)section {
     if (section < 0) { return CGRectNull; }
 
     PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
@@ -235,10 +242,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     _totalHeight = self.contentInset.top;
     
     // get visible frame
-    CGRect visibleRect = CGRectMake(self.contentOffset.x,
-                                    self.contentOffset.y,
-                                    CGRectGetWidth(self.bounds),
-                                    CGRectGetHeight(self.bounds));
+    CGRect visibleRect = self.visibleRect;
     
     for (NSInteger section = 0; section < _numberOfSections; section++) {
         CGFloat left = 0.f;
@@ -298,10 +302,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
         return;
     }
     
-    CGRect visibleRect = CGRectMake(self.contentOffset.x,
-                                    self.contentOffset.y,
-                                    CGRectGetWidth(self.bounds),
-                                    CGRectGetHeight(self.bounds));
+    CGRect visibleRect = self.visibleRect;
     
     // start top position.
     _totalHeight = self.contentInset.top;
@@ -476,6 +477,14 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 
 - (CGFloat)tableWidth {
     return CGRectGetWidth(self.bounds) - (self.contentInset.left + self.contentInset.right);
+}
+
+- (CGRect)visibleRect {
+    CGRect visibleRect = CGRectMake(self.contentOffset.x,
+                                    self.contentOffset.y,
+                                    CGRectGetWidth(self.bounds),
+                                    CGRectGetHeight(self.bounds));
+    return visibleRect;
 }
 
 @end
