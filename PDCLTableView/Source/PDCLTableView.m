@@ -294,7 +294,12 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     if (!_headerNodes.count && !_cellNodes.count) {
         return;
     }
-        
+    
+    CGRect visibleRect = CGRectMake(self.contentOffset.x,
+                                    self.contentOffset.y,
+                                    CGRectGetWidth(self.bounds),
+                                    CGRectGetHeight(self.bounds));
+    
     // start top position.
     _totalHeight = self.contentInset.top;
     
@@ -318,6 +323,12 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
                 rect.size.height = headerHeight;
                 header.frame = rect;
             }
+        } else {
+            if (CGRectIntersectsRect(visibleRect, headerRect)) {
+                headerNode.view = [self.delegate tableView:self viewForHeaderInSection:section];
+                headerNode.view.frame = headerRect;
+                [self addSubview:headerNode.view];
+            }
         }
         
         _totalHeight += headerHeight;
@@ -337,6 +348,12 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
             
             if (cell) {
                 cell.frame = cellRect;
+            } else {
+                if (CGRectIntersectsRect(visibleRect, cellRect)) {
+                    cellNode.cell = [self.dataSource tableView:self cellForRowAtIndexPath:indexPath];
+                    cellNode.cell.frame = cellRect;
+                    [self addSubview:cellNode.cell];
+                }
             }
             
             _totalHeight += cellHeight;
