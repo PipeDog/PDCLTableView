@@ -37,7 +37,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 
 @interface PDVirtualHeaderFooterNode : NSObject
 
-@property (nonatomic, assign) NSInteger section;
+@property (nonatomic, assign, readonly) NSInteger section;
 @property (nonatomic, strong) PDCLTableViewHeaderFooterView *view;
 @property (nonatomic, assign) CGRect viewRect;
 
@@ -158,7 +158,10 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:lastSection];
     PDCLTableViewHeaderFooterView *lastHeader = headerNode.view;
     
-    CGRect lastHeaderRectInContainer = CGRectMake(self.contentInset.left, lastHeader.ceilingOffset, self.tableWidth, [self rectForHeaderInSection:lastSection].size.height);
+    CGRect lastHeaderRectInContainer = CGRectMake(self.contentInset.left,
+                                                  lastHeader.ceilingOffset,
+                                                  self.tableWidth,
+                                                  [self rectForHeaderInSection:lastSection].size.height);
     CGRect currentHeaderRectInContainer = [self _rectForHeaderInSectionBaseOnSuperview:section];
     
     if (lastHeader) {
