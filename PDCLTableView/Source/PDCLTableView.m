@@ -199,7 +199,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
     PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
     PDCLTableViewHeaderFooterView *header = headerNode.view;
     
-    if (header.superview != self) { // check header if created???
+    if (header.superview != self) {
         CGRect rect = [self rectForHeaderInSection:section];
         header.frame = rect;
         [self addSubview:header];
