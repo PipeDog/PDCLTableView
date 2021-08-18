@@ -17,7 +17,6 @@
 		DD8FDDA723FE350A0080FAB6 /* PDCLTableViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DD8FDDA623FE350A0080FAB6 /* PDCLTableViewTests.m */; };
 		DD8FDDB223FE350A0080FAB6 /* PDCLTableViewUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = DD8FDDB123FE350A0080FAB6 /* PDCLTableViewUITests.m */; };
 		DD8FDDC223FE351B0080FAB6 /* PDCLTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = DD8FDDC123FE351B0080FAB6 /* PDCLTableView.m */; };
-		DD8FDDC523FE55580080FAB6 /* NSMutableArray+PDAdd.m in Sources */ = {isa = PBXBuildFile; fileRef = DD8FDDC423FE55580080FAB6 /* NSMutableArray+PDAdd.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,8 +57,6 @@
 		DD8FDDB323FE350A0080FAB6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DD8FDDC023FE351B0080FAB6 /* PDCLTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PDCLTableView.h; sourceTree = "<group>"; };
 		DD8FDDC123FE351B0080FAB6 /* PDCLTableView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PDCLTableView.m; sourceTree = "<group>"; };
-		DD8FDDC323FE55580080FAB6 /* NSMutableArray+PDAdd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+PDAdd.h"; sourceTree = "<group>"; };
-		DD8FDDC423FE55580080FAB6 /* NSMutableArray+PDAdd.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+PDAdd.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,8 +146,6 @@
 			children = (
 				DD8FDDC023FE351B0080FAB6 /* PDCLTableView.h */,
 				DD8FDDC123FE351B0080FAB6 /* PDCLTableView.m */,
-				DD8FDDC323FE55580080FAB6 /* NSMutableArray+PDAdd.h */,
-				DD8FDDC423FE55580080FAB6 /* NSMutableArray+PDAdd.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -286,7 +281,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DD8FDD9223FE35070080FAB6 /* ViewController.m in Sources */,
-				DD8FDDC523FE55580080FAB6 /* NSMutableArray+PDAdd.m in Sources */,
 				DD8FDD8C23FE35070080FAB6 /* AppDelegate.m in Sources */,
 				DD8FDD9D23FE35090080FAB6 /* main.m in Sources */,
 				DD8FDDC223FE351B0080FAB6 /* PDCLTableView.m in Sources */,

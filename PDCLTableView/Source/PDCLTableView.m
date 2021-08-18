@@ -7,11 +7,27 @@
 //
 
 #import "PDCLTableView.h"
-#import "NSMutableArray+PDAdd.h"
 
 typedef NSString * PDCLTableViewKVOKeyPath NS_TYPED_ENUM;
 
 static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"contentOffset";
+
+@interface NSArray (PDAdd)
+
+- (id)_pd_objectOrNilAtIndex:(NSInteger)index;
+
+@end
+
+@implementation NSArray (PDAdd)
+
+- (id)_pd_objectOrNilAtIndex:(NSInteger)index {
+    if (index < 0 || index >= self.count) {
+        return nil;
+    }
+    return [self objectAtIndex:index];
+}
+
+@end
 
 @interface PDVirtualCellNode : NSObject
 
@@ -155,7 +171,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 #pragma mark - Private Methods
 - (void)_reloadHeaderInSectin:(NSInteger)section {
     NSInteger lastSection = section - 1;
-    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:lastSection];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes _pd_objectOrNilAtIndex:lastSection];
     PDCLTableViewHeaderFooterView *lastHeader = headerNode.view;
     
     CGRect lastHeaderRectInContainer = CGRectMake(self.contentInset.left,
@@ -183,7 +199,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (void)_addHeaderToSuperviewForSection:(NSInteger)section {
-    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes _pd_objectOrNilAtIndex:section];
     PDCLTableViewHeaderFooterView *header = headerNode.view;
     
     if (header.superview != self.superview) {
@@ -196,7 +212,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (void)_addHeaderToSelfForSection:(NSInteger)section {
-    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes _pd_objectOrNilAtIndex:section];
     PDCLTableViewHeaderFooterView *header = headerNode.view;
     
     if (header.superview != self) {
@@ -209,7 +225,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (CGRect)_rectForHeaderInSectionBaseOnSuperview:(NSInteger)section {
     if (section < 0) { return CGRectNull; }
 
-    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes _pd_objectOrNilAtIndex:section];
     if (!headerNode) { return CGRectNull; }
     
     CGRect rect = headerNode.viewRect;
@@ -372,7 +388,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (CGRect)rectForHeaderInSection:(NSInteger)section {
-    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes _pd_objectOrNilAtIndex:section];
     if (!headerNode) { return CGRectNull; }
     
     return headerNode.viewRect;
@@ -381,7 +397,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 - (CGRect)rectForSection:(NSInteger)section {
     CGRect headerFrame = [self rectForHeaderInSection:section];
     
-    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes objectOrNilAtIndex:section];
+    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes _pd_objectOrNilAtIndex:section];
     if (!curSectionCellNodes.count) { return headerFrame; }
     
     PDVirtualCellNode *lastCellNode = curSectionCellNodes.lastObject;
@@ -391,7 +407,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (PDCLTableViewCell *)cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes objectOrNilAtIndex:indexPath.section];
+    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes _pd_objectOrNilAtIndex:indexPath.section];
     if (!curSectionCellNodes.count) { return nil; }
     
     PDVirtualCellNode *cellNode = curSectionCellNodes[indexPath.row];
@@ -405,7 +421,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (NSArray<PDCLTableViewCell *> *)cellsInSection:(NSInteger)section {
-    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes objectOrNilAtIndex:section];
+    NSArray<PDVirtualCellNode *> *curSectionCellNodes = [self.cellNodes _pd_objectOrNilAtIndex:section];
     if (!curSectionCellNodes.count) { return nil; }
     
     NSMutableArray *cells = [NSMutableArray array];
@@ -423,7 +439,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (PDCLTableViewHeaderFooterView *)headerViewForSection:(NSInteger)section {
-    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes objectOrNilAtIndex:section];
+    PDVirtualHeaderFooterNode *headerNode = [self.headerNodes _pd_objectOrNilAtIndex:section];
     if (!headerNode) { return nil; }
     
     if (!headerNode.view) {
@@ -435,7 +451,7 @@ static PDCLTableViewKVOKeyPath const PDCLTableViewKVOKeyPathContentOffset = @"co
 }
 
 - (NSInteger)numberOfRowsInSection:(NSInteger)section {
-    NSArray *cellNodesInSection = [self.cellNodes objectOrNilAtIndex:section];
+    NSArray *cellNodesInSection = [self.cellNodes _pd_objectOrNilAtIndex:section];
     return cellNodesInSection.count;
 }
 
